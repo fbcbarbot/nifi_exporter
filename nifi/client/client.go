@@ -48,7 +48,7 @@ type jwtPayload struct {
 	Subject           string `json:"sub"`
 }
 
-func NewClient(baseURL, username, password, caCertificates string) (*Client, error) {
+func NewClient(baseURL, username, password, caCertificates string, clientCertFile string, clientKeyFile string, caCertFile string) (*Client, error) {
 	c := Client{
 		baseURL: strings.TrimRight(baseURL, "/") + "/nifi-api",
 		credentials: url.Values{
@@ -56,9 +56,17 @@ func NewClient(baseURL, username, password, caCertificates string) (*Client, err
 			"password": []string{password},
 		},
 	}
-	if caCertificates != "" {
+	if caCertificates != "" || caCertFile != "" {
 		certPool := x509.NewCertPool()
-		if ok := certPool.AppendCertsFromPEM([]byte(caCertificates)); !ok {
+		caCertBytes := []byte(caCertificates)
+		if caCertFile != "" {
+			var err error
+			caCertBytes, err = ioutil.ReadFile(caCertFile)
+			if err != nil {
+				return nil, errors.Trace(err)
+			}
+		}
+		if ok := certPool.AppendCertsFromPEM(caCertBytes); !ok {
 			return nil, errors.New("Invalid CA certificates.")
 		}
 		for _, der := range certPool.Subjects() {
@@ -73,10 +81,22 @@ func NewClient(baseURL, username, password, caCertificates string) (*Client, err
 				"organization": name.Organization,
 			}).Infof("Loaded CA certificate for %s: %s", baseURL, name.CommonName)
 		}
+		certificates := []tls.Certificate{}
+		if clientCertFile != "" {
+			certificate, err := tls.LoadX509KeyPair(clientCertFile, clientKeyFile)
+			if err != nil {
+				return nil, errors.Trace(err)
+			}
+			certificates = append(certificates, certificate)
+		}
+
+		tlsConfig := tls.Config{
+			RootCAs: certPool,
+			Certificates: certificates,
+			InsecureSkipVerify: true,
+		}
 		c.client.Transport = &http.Transport{
-			TLSClientConfig: &tls.Config{
-				RootCAs: certPool,
-			},
+			TLSClientConfig: &tlsConfig,
 		}
 	}
 	return &c, nil

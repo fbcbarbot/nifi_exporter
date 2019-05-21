@@ -12,6 +12,12 @@ e.g.
 ./nifi_exporter /etc/nifi_exporter/config.yml
 ```
 
+## Required policies
+
+- View the root process group
+- View system diagnostics
+- View access counters
+
 ### Minimal configuration
 
 The nifi exporter expects at least the following keys to be present in the yaml config file:
