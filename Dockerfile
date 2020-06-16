@@ -17,7 +17,9 @@ ENV NIFI_BASE_DIR=/opt/nifi
 ENV NIFI_TOOLKIT_HOME ${NIFI_BASE_DIR}/nifi-toolkit-current
 ENV NIFI_EXPORTER_HOME ${NIFI_BASE_DIR}/exporter
 
-RUN mkdir -p ${NIFI_EXPORTER_HOME}
+RUN mkdir -p ${NIFI_EXPORTER_HOME} \
+    && apt-get update \
+    && apt-get install -y jq
 
 # Download, validate, and expand Apache NiFi Toolkit binary.
 RUN curl -fSL ${MIRROR_BASE_URL}/${NIFI_TOOLKIT_BINARY_PATH} -o ${NIFI_BASE_DIR}/nifi-toolkit-${NIFI_VERSION}-bin.zip \
