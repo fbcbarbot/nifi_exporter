@@ -8,7 +8,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /exporter/exporter main.go
 
 FROM openjdk:8-jre
 
-ARG NIFI_VERSION=1.11.4
+ARG NIFI_VERSION=1.16.3
 ARG BASE_URL=https://archive.apache.org/dist
 ARG MIRROR_BASE_URL=${MIRROR_BASE_URL:-${BASE_URL}}
 ARG NIFI_TOOLKIT_BINARY_PATH=${NIFI_TOOLKIT_BINARY_PATH:-/nifi/${NIFI_VERSION}/nifi-toolkit-${NIFI_VERSION}-bin.zip}
