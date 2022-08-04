@@ -1,0 +1,30 @@
+clone:
+  clone:
+    image: plugins/git
+    depth: 20
+
+pipeline:
+    build-push-latest:
+      image: quintoandar/drone-gcr
+      pull: true
+      repo: quintohub/nifi_exporter
+      dockerfile: Dockerfile
+      tags:
+        - latest
+      when:
+        event:
+          - push
+        branch:
+          - main
+    
+    build-push-tag:
+      image: quintoandar/drone-gcr
+      pull: true
+      repo: quintohub/nifi_exporter
+      dockerfile: Dockerfile
+      tags:
+        - ${DRONE_TAG}
+      when:
+        event:
+          - tag
+
