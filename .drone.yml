@@ -15,7 +15,7 @@ pipeline:
         event:
           - push
         branch:
-          - main
+          - master
     
     build-push-tag:
       image: quintoandar/drone-gcr
